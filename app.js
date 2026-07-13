@@ -12,20 +12,20 @@ const playBtn = document.getElementById("playBtn");
 const restartBtn = document.getElementById("restartBtn");
 
 const scoreText = document.getElementById("score");
-const finalScore = document.getElementById("finalScore");
 const bestScore = document.getElementById("bestScore");
 
-let W;
-let H;
+let W,H;
 
-function resize() {
+function resize(){
+
     W = canvas.width = window.innerWidth;
     H = canvas.height = window.innerHeight;
 
-    player.y = H - player.size - 25;
+    player.y = H - player.size - 20;
+
 }
 
-window.addEventListener("resize", resize);
+window.addEventListener("resize",resize);
 
 const bg = new Image();
 bg.src = "fon.png";
@@ -43,163 +43,162 @@ let score = 0;
 let playing = false;
 
 let best = Number(localStorage.getItem("best")) || 0;
+
 bestScore.textContent = best;
 
 const player = {
-    x: 150,
-    y: 0,
-    size: 130,
-    eating: false,
-    timer: 0
+
+    x:150,
+    y:0,
+    size:130,
+    eating:false,
+    timer:0
+
 };
 
-const burgers = [];
+const burgers=[];
 
-function spawnBurger() {
+function spawnBurger(){
 
     burgers.push({
 
-        x: Math.random() * (W - 90),
+        x:Math.random()*(W-90),
 
-        y: -100 - Math.random() * 500,
+        y:-100-Math.random()*400,
 
-        size: 70,
+        size:70,
 
-        speed: 4 + Math.random() * 3
+        speed:1+Math.random()*1
 
     });
 
 }
 
-function resetGame() {
+function resetGame(){
 
-    burgers.length = 0;
+    burgers.length=0;
 
-    score = 0;
+    score=0;
 
-    scoreText.textContent = "🍔 " + score;
+    scoreText.textContent="🍔 "+score;
 
-    for (let i = 0; i < 6; i++) {
+    for(let i=0;i<6;i++){
+
         spawnBurger();
+
     }
 
 }
 
-playBtn.onclick = startGame;
-restartBtn.onclick = startGame;
+playBtn.onclick=startGame;
 
-function startGame() {
+restartBtn.onclick=startGame;
+
+function startGame(){
 
     menu.classList.add("hidden");
-    gameOver.classList.add("hidden");
+
+    if(gameOver)
+        gameOver.classList.add("hidden");
 
     resetGame();
 
-    playing = true;
+    playing=true;
 
 }
 
-canvas.addEventListener("touchmove", e => {
+canvas.addEventListener("touchmove",e=>{
 
-    if (!playing) return;
+    if(!playing) return;
 
-    player.x = e.touches[0].clientX - player.size / 2;
+    player.x=e.touches[0].clientX-player.size/2;
 
-});
-
-canvas.addEventListener("mousemove", e => {
-
-    if (!playing) return;
-
-    player.x = e.clientX - player.size / 2;
+    player.x=Math.max(0,Math.min(player.x,W-player.size));
 
 });
 
-function update() {
+canvas.addEventListener("mousemove",e=>{
 
-    if (!playing) return;
+    if(!playing) return;
 
-    if (player.timer > 0) {
+    player.x=e.clientX-player.size/2;
+
+    player.x=Math.max(0,Math.min(player.x,W-player.size));
+
+});
+
+function update(){
+
+    if(!playing) return;
+
+    if(player.timer>0){
 
         player.timer--;
 
-    } else {
+    }else{
 
-        player.eating = false;
+        player.eating=false;
 
     }
 
-    burgers.forEach(b => {
+    burgers.forEach(b=>{
 
-        b.y += b.speed;
+        b.y+=b.speed;
 
-        if (b.y > H + 100) {
+        if(b.y>H+100){
 
-            playing = false;
+            b.y=-150;
 
-            finalScore.textContent = score;
-
-            if (score > best) {
-
-                best = score;
-
-                localStorage.setItem("best", best);
-
-                bestScore.textContent = best;
-
-            }
-
-            gameOver.classList.remove("hidden");
-
-            return;
+            b.x=Math.random()*(W-90);
 
         }
 
-        const dx =
-            (player.x + player.size / 2) -
-            (b.x + b.size / 2);
+        const dx=(player.x+player.size/2)-(b.x+b.size/2);
 
-        const dy =
-            (player.y + player.size / 2) -
-            (b.y + b.size / 2);
+        const dy=(player.y+player.size/2)-(b.y+b.size/2);
 
-        const dist = Math.sqrt(dx * dx + dy * dy);
+        const dist=Math.sqrt(dx*dx+dy*dy);
 
-        if (dist < 75) {
+        if(dist<75){
 
             score++;
 
-            scoreText.textContent = "🍔 " + score;
+            scoreText.textContent="🍔 "+score;
 
-            player.eating = true;
+            player.eating=true;
 
-            player.timer = 10;
+            player.timer=10;
 
-            if (tg.HapticFeedback) {
+            if(score>best){
+
+                best=score;
+
+                localStorage.setItem("best",best);
+
+                bestScore.textContent=best;
+
+            }
+
+            if(tg.HapticFeedback){
+
                 tg.HapticFeedback.impactOccurred("light");
-            }
-
-            b.y = -150;
-            b.x = Math.random() * (W - 90);
-
-            if (score % 10 === 0) {
-
-                burgers.forEach(x => x.speed += 0.5);
 
             }
+
+            b.y=-150;
+
+            b.x=Math.random()*(W-90);
 
         }
 
     });
+function draw(){
 
-}
-function draw() {
+    ctx.clearRect(0,0,W,H);
 
-    ctx.clearRect(0, 0, W, H);
+    ctx.drawImage(bg,0,0,W,H);
 
-    ctx.drawImage(bg, 0, 0, W, H);
-
-    burgers.forEach(b => {
+    burgers.forEach(b=>{
 
         ctx.drawImage(
             burgerImg,
@@ -223,7 +222,7 @@ function draw() {
 
 }
 
-function gameLoop() {
+function gameLoop(){
 
     update();
     draw();
@@ -232,37 +231,41 @@ function gameLoop() {
 
 }
 
-function preload() {
+function preload(){
 
-    const images = [
+    const images=[
         bg,
         headIdle,
         headEat,
         burgerImg
     ];
 
-    let loaded = 0;
+    let loaded=0;
 
-    images.forEach(img => {
+    images.forEach(img=>{
 
-        if (img.complete) {
+        if(img.complete){
 
             loaded++;
 
-            if (loaded === images.length) {
+            if(loaded===images.length){
+
                 resize();
                 gameLoop();
+
             }
 
-        } else {
+        }else{
 
-            img.onload = () => {
+            img.onload=()=>{
 
                 loaded++;
 
-                if (loaded === images.length) {
+                if(loaded===images.length){
+
                     resize();
                     gameLoop();
+
                 }
 
             };
@@ -275,37 +278,36 @@ function preload() {
 
 preload();
 
-setInterval(() => {
+setInterval(()=>{
 
-    if (!playing) return;
+    if(!playing) return;
 
-    if (burgers.length < 15) {
+    if(burgers.length<12){
 
         spawnBurger();
 
     }
 
-}, 5000);
+},7000);
 
-document.addEventListener("touchmove", e => {
+document.addEventListener("touchmove",e=>{
 
     e.preventDefault();
 
-}, { passive: false });
+},{passive:false});
 
-window.addEventListener("blur", () => {
+window.addEventListener("blur",()=>{
 
-    playing = false;
+    playing=false;
 
 });
 
-window.addEventListener("focus", () => {
+window.addEventListener("focus",()=>{
 
-    if (menu.classList.contains("hidden") &&
-        gameOver.classList.contains("hidden")) {
+    if(menu.classList.contains("hidden")){
 
-        playing = true;
+        playing=true;
 
     }
 
-});
+});}
