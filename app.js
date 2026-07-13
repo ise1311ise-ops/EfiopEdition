@@ -1,313 +1,408 @@
 const tg = window.Telegram.WebApp;
+
 tg.ready();
+
 tg.expand();
 
+
 const canvas = document.getElementById("game");
+
 const ctx = canvas.getContext("2d");
 
+
 const menu = document.getElementById("menu");
+
 const gameOver = document.getElementById("gameOver");
 
+
 const playBtn = document.getElementById("playBtn");
+
 const restartBtn = document.getElementById("restartBtn");
 
+
 const scoreText = document.getElementById("score");
+
+const finalScore = document.getElementById("finalScore");
+
 const bestScore = document.getElementById("bestScore");
 
-let W,H;
 
-function resize(){
+let W;
 
-    W = canvas.width = window.innerWidth;
-    H = canvas.height = window.innerHeight;
+let H;
 
-    player.y = H - player.size - 20;
+
+function resize() {
+
+W = canvas.width = window.innerWidth;
+
+H = canvas.height = window.innerHeight;
+
+
+player.y = H - player.size - 25;  
+
+
 
 }
 
-window.addEventListener("resize",resize);
+
+window.addEventListener("resize", resize);
+
 
 const bg = new Image();
+
 bg.src = "fon.png";
 
+
 const headIdle = new Image();
+
 headIdle.src = "efiop1.png";
 
+
 const headEat = new Image();
+
 headEat.src = "efiop2.png";
 
+
 const burgerImg = new Image();
+
 burgerImg.src = "burger.png";
 
+
 let score = 0;
+
 let playing = false;
+
 
 let best = Number(localStorage.getItem("best")) || 0;
 
 bestScore.textContent = best;
 
+
 const player = {
 
-    x:150,
-    y:0,
-    size:130,
-    eating:false,
-    timer:0
+x: 150,
+
+y: 0,
+
+size: 130,
+
+eating: false,
+
+timer: 0
 
 };
 
-const burgers=[];
 
-function spawnBurger(){
+const burgers = [];
 
-    burgers.push({
 
-        x:Math.random()*(W-90),
+function spawnBurger() {
 
-        y:-100-Math.random()*400,
 
-        size:70,
+burgers.push({  
 
-        speed:1+Math.random()*1
+    x: Math.random() * (W - 90),  
 
-    });
+    y: -100 - Math.random() * 500,  
 
-}
+    size: 70,  
 
-function resetGame(){
+    speed: 4 + Math.random() * 3  
 
-    burgers.length=0;
+});  
 
-    score=0;
 
-    scoreText.textContent="🍔 "+score;
-
-    for(let i=0;i<6;i++){
-
-        spawnBurger();
-
-    }
 
 }
 
-playBtn.onclick=startGame;
 
-restartBtn.onclick=startGame;
+function resetGame() {
 
-function startGame(){
 
-    menu.classList.add("hidden");
+burgers.length = 0;  
 
-    if(gameOver)
-        gameOver.classList.add("hidden");
+score = 0;  
 
-    resetGame();
+scoreText.textContent = "🍔 " + score;  
 
-    playing=true;
+for (let i = 0; i < 6; i++) {  
+    spawnBurger();  
+}  
+
+
 
 }
 
-canvas.addEventListener("touchmove",e=>{
 
-    if(!playing) return;
+playBtn.onclick = startGame;
 
-    player.x=e.touches[0].clientX-player.size/2;
+restartBtn.onclick = startGame;
 
-    player.x=Math.max(0,Math.min(player.x,W-player.size));
+
+function startGame() {
+
+
+menu.classList.add("hidden");  
+gameOver.classList.add("hidden");  
+
+resetGame();  
+
+playing = true;  
+
+
+
+}
+
+
+canvas.addEventListener("touchmove", e => {
+
+
+if (!playing) return;  
+
+player.x = e.touches[0].clientX - player.size / 2;  
+
+
 
 });
 
-canvas.addEventListener("mousemove",e=>{
 
-    if(!playing) return;
+canvas.addEventListener("mousemove", e => {
 
-    player.x=e.clientX-player.size/2;
 
-    player.x=Math.max(0,Math.min(player.x,W-player.size));
+if (!playing) return;  
+
+player.x = e.clientX - player.size / 2;  
+
+
 
 });
 
-function update(){
 
-    if(!playing) return;
+function update() {
 
-    if(player.timer>0){
 
-        player.timer--;
+if (!playing) return;  
 
-    }else{
+if (player.timer > 0) {  
 
-        player.eating=false;
+    player.timer--;  
 
-    }
+} else {  
 
-    burgers.forEach(b=>{
+    player.eating = false;  
 
-        b.y+=b.speed;
+}  
 
-        if(b.y>H+100){
+burgers.forEach(b => {  
 
-            b.y=-150;
+    b.y += b.speed;  
 
-            b.x=Math.random()*(W-90);
+    if (b.y > H + 100) {  
 
-        }
+        playing = false;  
 
-        const dx=(player.x+player.size/2)-(b.x+b.size/2);
+        finalScore.textContent = score;  
 
-        const dy=(player.y+player.size/2)-(b.y+b.size/2);
+        if (score > best) {  
 
-        const dist=Math.sqrt(dx*dx+dy*dy);
+            best = score;  
 
-        if(dist<75){
+            localStorage.setItem("best", best);  
 
-            score++;
+            bestScore.textContent = best;  
 
-            scoreText.textContent="🍔 "+score;
+        }  
 
-            player.eating=true;
+        gameOver.classList.remove("hidden");  
 
-            player.timer=10;
+        return;  
 
-            if(score>best){
+    }  
 
-                best=score;
+    const dx =  
+        (player.x + player.size / 2) -  
+        (b.x + b.size / 2);  
 
-                localStorage.setItem("best",best);
+    const dy =  
+        (player.y + player.size / 2) -  
+        (b.y + b.size / 2);  
 
-                bestScore.textContent=best;
+    const dist = Math.sqrt(dx * dx + dy * dy);  
 
-            }
+    if (dist < 75) {  
 
-            if(tg.HapticFeedback){
+        score++;  
 
-                tg.HapticFeedback.impactOccurred("light");
+        scoreText.textContent = "🍔 " + score;  
 
-            }
+        player.eating = true;  
 
-            b.y=-150;
+        player.timer = 10;  
 
-            b.x=Math.random()*(W-90);
+        if (tg.HapticFeedback) {  
+            tg.HapticFeedback.impactOccurred("light");  
+        }  
 
-        }
+        b.y = -150;  
+        b.x = Math.random() * (W - 90);  
 
-    });
-function draw(){
+        if (score % 10 === 0) {  
 
-    ctx.clearRect(0,0,W,H);
+            burgers.forEach(x => x.speed += 0.5);  
 
-    ctx.drawImage(bg,0,0,W,H);
+        }  
 
-    burgers.forEach(b=>{
+    }  
 
-        ctx.drawImage(
-            burgerImg,
-            b.x,
-            b.y,
-            b.size,
-            b.size
-        );
+});  
 
-    });
 
-    const head = player.eating ? headEat : headIdle;
-
-    ctx.drawImage(
-        head,
-        player.x,
-        player.y,
-        player.size,
-        player.size
-    );
 
 }
 
-function gameLoop(){
+function draw() {
 
-    update();
-    draw();
 
-    requestAnimationFrame(gameLoop);
+ctx.clearRect(0, 0, W, H);  
+
+ctx.drawImage(bg, 0, 0, W, H);  
+
+burgers.forEach(b => {  
+
+    ctx.drawImage(  
+        burgerImg,  
+        b.x,  
+        b.y,  
+        b.size,  
+        b.size  
+    );  
+
+});  
+
+const head = player.eating ? headEat : headIdle;  
+
+ctx.drawImage(  
+    head,  
+    player.x,  
+    player.y,  
+    player.size,  
+    player.size  
+);  
+
+
+
+}
+
+
+function gameLoop() {
+
+
+update();  
+draw();  
+
+requestAnimationFrame(gameLoop);  
+
+
 
 }
 
-function preload(){
 
-    const images=[
-        bg,
-        headIdle,
-        headEat,
-        burgerImg
-    ];
+function preload() {
 
-    let loaded=0;
 
-    images.forEach(img=>{
+const images = [  
+    bg,  
+    headIdle,  
+    headEat,  
+    burgerImg  
+];  
 
-        if(img.complete){
+let loaded = 0;  
 
-            loaded++;
+images.forEach(img => {  
 
-            if(loaded===images.length){
+    if (img.complete) {  
 
-                resize();
-                gameLoop();
+        loaded++;  
 
-            }
+        if (loaded === images.length) {  
+            resize();  
+            gameLoop();  
+        }  
 
-        }else{
+    } else {  
 
-            img.onload=()=>{
+        img.onload = () => {  
 
-                loaded++;
+            loaded++;  
 
-                if(loaded===images.length){
+            if (loaded === images.length) {  
+                resize();  
+                gameLoop();  
+            }  
 
-                    resize();
-                    gameLoop();
+        };  
 
-                }
+    }  
 
-            };
+});  
 
-        }
 
-    });
 
 }
+
 
 preload();
 
-setInterval(()=>{
 
-    if(!playing) return;
+setInterval(() => {
 
-    if(burgers.length<12){
 
-        spawnBurger();
+if (!playing) return;  
 
-    }
+if (burgers.length < 15) {  
 
-},7000);
+    spawnBurger();  
 
-document.addEventListener("touchmove",e=>{
+}  
 
-    e.preventDefault();
 
-},{passive:false});
 
-window.addEventListener("blur",()=>{
+}, 5000);
 
-    playing=false;
+
+document.addEventListener("touchmove", e => {
+
+
+e.preventDefault();  
+
+
+
+}, { passive: false });
+
+
+window.addEventListener("blur", () => {
+
+
+playing = false;  
+
+
 
 });
 
-window.addEventListener("focus",()=>{
 
-    if(menu.classList.contains("hidden")){
+window.addEventListener("focus", () => {
 
-        playing=true;
 
-    }
+if (menu.classList.contains("hidden") &&  
+    gameOver.classList.contains("hidden")) {  
 
-});}
+    playing = true;  
+
+}  
+
+
+
+});
+
