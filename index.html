@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width,initial-scale=1.0,maximum-scale=1,user-scalable=no"
+    >
+
+    <title>EFIOP EDITION</title>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div id="menu">
+
+    <h1>EFIOP EDITION</h1>
+
+    <button id="playBtn">
+        Играть
+    </button>
+
+    <div id="best">
+        Лучший результат:
+        <span id="bestScore">0</span>
+    </div>
+
+</div>
+
+<div id="hud">
+
+    <div id="score">
+        🍔 0
+    </div>
+
+</div>
+
+<canvas id="game"></canvas>
+
+<div id="gameOver" class="hidden">
+
+    <h2>Игра окончена</h2>
+
+    <p>
+        Ты поймал
+        <span id="finalScore">0</span>
+        бургеров
+    </p>
+
+    <button id="restartBtn">
+        Играть снова
+    </button>
+
+</div>
+
+<script src="app.js"></script>
+
+</body>
+</html>
